@@ -1,0 +1,16 @@
+version: "3"
+services:
+  emby-connector:
+    image: catchsudheera/emby-library-update-connector
+    container_name: emby-connector
+    environment:
+      - EMBY_URL=${EMBY_URL}
+      - EMBY_ACCESS_TOKEN=${EMBY_ACCESS_TOKEN}
+      - EMBY_FULL_LIBRARY_REFRESH_THRESHOLD_MINS=30     # optional. default : 30 mins
+      - SONARR_MEDIA_DIRECTORIES=tv                     # optional. default : tv
+      - RADARR_MEDIA_DIRECTORIES=movies                 # optional. defaulr : movies
+    ports:
+      - 9400:8080
+    volumes:
+      - /var/log/emby-connect:/logs
+    restart: unless-stopped
