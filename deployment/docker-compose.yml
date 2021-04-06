@@ -9,6 +9,7 @@ services:
       - EMBY_FULL_LIBRARY_REFRESH_THRESHOLD_MINS=30     # optional. default : 30 mins
       - SONARR_MEDIA_DIRECTORIES=tv                     # optional. default : tv
       - RADARR_MEDIA_DIRECTORIES=movies                 # optional. defaulr : movies
+      - LOGGING_CONFIG=logback.xml
     ports:
       - 9400:8080
     volumes:
