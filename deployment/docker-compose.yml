@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   emby-connector:
-    image: catchsudheera/emby-library-update-connector:1.0.2
+    image: catchsudheera/emby-library-update-connector:1.0.3
     container_name: emby-connector
     ports:
       - 9400:8080
