@@ -10,11 +10,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 2mnetworks:
-19
-  media_server_network:
-20
-    name: media_server_network
+      start_period: 2m
     restart: always
     networks:
       - media_server_network
