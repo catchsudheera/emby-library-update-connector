@@ -12,7 +12,7 @@ services:
     ports:
       - 9400:8080
     healthcheck:
-      test: ["CMD-SHELL", "curl -s -X GET -I  http://localhost:8080 | grep 'HTTP/1.1 200' || exit 1"]
+      test: ["CMD-SHELL", "curl -s -X GET -I  http://localhost:8080/health/ping | grep 'HTTP/1.1 200' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
