@@ -1,9 +1,9 @@
-package com.dutchflix.emby.connect.controller;
+package com.catchsudheera.media_server.emby.connect.controller;
 
+import com.catchsudheera.media_server.emby.connect.config.ConfigProperties;
+import com.catchsudheera.media_server.emby.connect.service.EmbyService;
 import com.jayway.jsonpath.JsonPath;
 import lombok.extern.slf4j.Slf4j;
-import com.dutchflix.emby.connect.service.EmbyService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,12 +18,11 @@ import java.util.HashSet;
 public class SonarrController {
 
     private EmbyService embyService;
+    private final ConfigProperties configProperties;
 
-    @Value("${sonarr.media.directories}")
-    private String mediaDirs;
-
-    public SonarrController(EmbyService embyService) {
+    public SonarrController(EmbyService embyService, ConfigProperties configProperties) {
         this.embyService = embyService;
+        this.configProperties = configProperties;
     }
 
     @PostMapping("/webhook")
@@ -32,7 +31,7 @@ public class SonarrController {
         String type = JsonPath.read(body, "$.eventType");
         if ("Download".equals(type)) {
             String imdbId = JsonPath.read(body, "$.series.imdbId");
-            embyService.updateLibraryPath(imdbId, new HashSet<>(Arrays.asList(mediaDirs.split(","))));
+            embyService.updateLibraryPath(imdbId, new HashSet<>(Arrays.asList(configProperties.getSonarrMediaDirectories().split(","))));
         }
     }
 }

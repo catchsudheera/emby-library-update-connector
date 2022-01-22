@@ -1,6 +1,7 @@
-package com.dutchflix.emby.connect.controller;
+package com.catchsudheera.media_server.emby.connect.controller;
 
-import com.dutchflix.emby.connect.service.EmbyService;
+import com.catchsudheera.media_server.emby.connect.config.ConfigProperties;
+import com.catchsudheera.media_server.emby.connect.service.EmbyService;
 import com.jayway.jsonpath.JsonPath;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,20 +12,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("radarr")
 @Slf4j
 public class RadarrController {
 
-    private EmbyService embyService;
+    private final EmbyService embyService;
+    private final ConfigProperties configProperties;
 
-    @Value("${radarr.media.directories}")
-    private String mediaDirs;
-
-    public RadarrController(EmbyService embyService) {
+    public RadarrController(EmbyService embyService, ConfigProperties configProperties) {
         this.embyService = embyService;
+        this.configProperties = configProperties;
     }
 
     @PostMapping("/webhook")
@@ -33,7 +32,7 @@ public class RadarrController {
         String type = JsonPath.read(body, "$.eventType");
         if ("Download".equals(type)) {
             String imdbId = JsonPath.read(body, "$.remoteMovie.imdbId");
-            embyService.updateLibraryPath(imdbId, new HashSet<>(Arrays.asList(mediaDirs.split(","))));
+            embyService.updateLibraryPath(imdbId, new HashSet<>(Arrays.asList(configProperties.getRadarrMediaDirectories().split(","))));
         }
     }
 }

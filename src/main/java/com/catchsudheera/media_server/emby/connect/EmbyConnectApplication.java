@@ -1,4 +1,4 @@
-package com.dutchflix.emby.connect;
+package com.catchsudheera.media_server.emby.connect;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
