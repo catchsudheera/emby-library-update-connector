@@ -6,9 +6,15 @@ services:
     environment:
       - EMBY_URL=${EMBY_URL}
       - EMBY_ACCESS_TOKEN=${EMBY_ACCESS_TOKEN}
-      - EMBY_FULL_REFRESH_TIMEOUT_MINS=30     # optional. default : 30 mins
+      - EMBY_FULL_REFRESH_TIMEOUT_MINS=30               # optional. default : 30 minutes
       - SONARR_MEDIA_DIRECTORIES=tv                     # optional. default : tv
       - RADARR_MEDIA_DIRECTORIES=movies                 # optional. default : movies
     ports:
       - 9400:8080
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -X GET -I  http://localhost:8080 | grep 'HTTP/1.1 200' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 2m
     restart: unless-stopped
