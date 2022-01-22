@@ -17,5 +17,6 @@ services:
       
 networks:
   media_server_network:
-    external: true
+    external:
+      name: media_server_network
       
