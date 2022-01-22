@@ -3,12 +3,6 @@ services:
   emby-connector:
     image: catchsudheera/emby-library-update-connector:1.0.1
     container_name: emby-connector
-    environment:
-      - EMBY_URL=${EMBY_URL}
-      - EMBY_ACCESS_TOKEN=${EMBY_ACCESS_TOKEN}
-      - EMBY_FULL_REFRESH_TIMEOUT_MINS=30               # optional. default : 30 minutes
-      - SONARR_MEDIA_DIRECTORIES=tv                     # optional. default : tv
-      - RADARR_MEDIA_DIRECTORIES=movies                 # optional. default : movies
     ports:
       - 9400:8080
     healthcheck:
@@ -17,4 +11,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 2m
-    restart: unless-stopped
+    restart: always
+    networks:
+      - media_server_network
