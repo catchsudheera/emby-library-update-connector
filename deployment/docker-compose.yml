@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 services:
   emby-connector:
     image: catchsudheera/emby-library-update-connector:1.0.2
@@ -18,11 +18,4 @@ services:
       retries: 3
       start_period: 2m
     restart: always
-    networks:
-      - media_server_network
-      
-networks:
-  media_server_network:
-    external:
-      name: media_server_network
       
