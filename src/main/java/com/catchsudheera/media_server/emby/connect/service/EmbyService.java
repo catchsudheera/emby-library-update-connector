@@ -122,13 +122,13 @@ public class EmbyService {
     @SneakyThrows
     private void refreshLibrary() {
         log.info("Refresh request : Library");
-        if (lastFullLibraryRefreshTime.isBefore(LocalDateTime.now().minusMinutes(configProperties.getEmbyFullRefreshTimeoutMins()))) {
+        if (lastFullLibraryRefreshTime.plusMinutes(configProperties.getEmbyFullRefreshTimeoutMins()).isAfter(LocalDateTime.now())) {
             log.warn("Last library refresh request sent at : {}. Too soon for another refresh. " +
                     "Scheduling a full refresh in {} minutes", lastFullLibraryRefreshTime, configProperties.getEmbyFullRefreshTimeoutMins());
-            if (this.scheduler.getQueue().size() > 0) {
+            if (this.scheduler.getQueue().size() == 0) {
                 this.scheduler.schedule(this::refreshLibrary, configProperties.getEmbyFullRefreshTimeoutMins(), TimeUnit.MINUTES);
             } else {
-                log.info("There is already a scheduled full library refresh. Skipping scheduling more refresh jobs.");
+                log.info("There is already a scheduled full library refresh. Skip scheduling more refresh jobs.");
             }
             return;
         }
