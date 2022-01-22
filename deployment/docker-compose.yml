@@ -16,7 +16,5 @@ services:
       - media_server_network
       
 networks:
-  media_server_network:
-    external:
-      name: media_server_network
+  - media_server_network
       
