@@ -9,8 +9,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.time.LocalTime;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,13 +22,26 @@ import java.util.stream.Collectors;
 public class EmbyService {
 
     private final ConfigProperties configProperties;
+    private final ScheduledThreadPoolExecutor scheduler = new ScheduledThreadPoolExecutor(1);
 
     private static final String ACCESS_TOKEN_HEADER = "X-Emby-Token";
 
-    private LocalTime lastFullLibraryRefreshTime = LocalTime.now();
+    private volatile LocalDateTime lastFullLibraryRefreshTime = LocalDateTime.MIN;
 
     public EmbyService(ConfigProperties configProperties) {
         this.configProperties = configProperties;
+    }
+
+    @PostConstruct
+    public void initialRefresh() {
+        refreshLibrary();
+    }
+
+    @SneakyThrows
+    @PreDestroy
+    public void tearDown() {
+        this.scheduler.shutdown();
+        this.scheduler.awaitTermination(5, TimeUnit.MINUTES);
     }
 
     @SneakyThrows
@@ -105,15 +122,22 @@ public class EmbyService {
     @SneakyThrows
     private void refreshLibrary() {
         log.info("Refresh request : Library");
-        if (lastFullLibraryRefreshTime.isBefore(LocalTime.now().minusMinutes(configProperties.getEmbyFullRefreshTimeoutMins()))) {
-            log.warn("Last library refresh request sent at : {}. Too soon for another refresh", lastFullLibraryRefreshTime);
+        if (lastFullLibraryRefreshTime.isBefore(LocalDateTime.now().minusMinutes(configProperties.getEmbyFullRefreshTimeoutMins()))) {
+            log.warn("Last library refresh request sent at : {}. Too soon for another refresh. " +
+                    "Scheduling a full refresh in {} minutes", lastFullLibraryRefreshTime, configProperties.getEmbyFullRefreshTimeoutMins());
+            if (this.scheduler.getQueue().size() > 0) {
+                this.scheduler.schedule(this::refreshLibrary, configProperties.getEmbyFullRefreshTimeoutMins(), TimeUnit.MINUTES);
+            } else {
+                log.info("There is already a scheduled full library refresh. Skipping scheduling more refresh jobs.");
+            }
             return;
         }
+
         HttpResponse<String> response = Unirest.post(configProperties.getEmbyUrl() + "/Library/Refresh")
                 .header(ACCESS_TOKEN_HEADER, configProperties.getEmbyAccessToken())
                 .asString();
         handleErrorResponse(response);
-        lastFullLibraryRefreshTime = LocalTime.now();
+        lastFullLibraryRefreshTime = LocalDateTime.now();
         log.info("Refresh request sent : Library");
     }
 
