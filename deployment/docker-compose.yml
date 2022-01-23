@@ -1,7 +1,7 @@
 version: "3"
 services:
   emby-connector:
-    image: catchsudheera/emby-library-update-connector:1.0.3
+    image: catchsudheera/emby-library-update-connector:1.0.4
     container_name: emby-connector
     environment:
       - EMBY_URL=${EMBY_URL}
