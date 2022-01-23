@@ -17,21 +17,28 @@ import java.util.HashSet;
 @Slf4j
 public class SonarrController {
 
+    private final HashSet<String> eventTypes;
     private EmbyService embyService;
     private final ConfigProperties configProperties;
 
     public SonarrController(EmbyService embyService, ConfigProperties configProperties) {
         this.embyService = embyService;
         this.configProperties = configProperties;
+        this.eventTypes = new HashSet<>(Arrays.asList(configProperties.getSonarrEventTypes().split(",")));
     }
 
     @PostMapping("/webhook")
     public void webhook(@RequestBody String body) {
         log.info("sonarr : {}", body);
         String type = JsonPath.read(body, "$.eventType");
-        if ("Download".equals(type)) {
+        if (isInterestedEvent(type)) {
             String imdbId = JsonPath.read(body, "$.series.imdbId");
             embyService.updateLibraryPath(imdbId, new HashSet<>(Arrays.asList(configProperties.getSonarrMediaDirectories().split(","))));
         }
+    }
+
+    private boolean isInterestedEvent(String type) {
+        return eventTypes.stream()
+                .anyMatch(e -> e.equalsIgnoreCase(type));
     }
 }

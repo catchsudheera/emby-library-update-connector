@@ -34,13 +34,14 @@ public class EmbyService {
 
     @PostConstruct
     public void initialRefresh() {
-        refreshLibrary();
+        this.scheduler.schedule(this::refreshLibrary, 2, TimeUnit.MINUTES);
+        log.info("Scheduled an initial full library scan in 2 Minutes");
     }
 
     @SneakyThrows
     @PreDestroy
     public void tearDown() {
-        this.scheduler.shutdown();
+        this.scheduler.shutdownNow();
         this.scheduler.awaitTermination(5, TimeUnit.MINUTES);
     }
 
