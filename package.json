@@ -1,14 +1,25 @@
 {
-  "name": "emby-library-update-connector-tests",
+  "name": "emby-library-update-connector",
   "version": "1.0.0",
-  "description": "Integration tests for emby-library-update-connector",
+  "description": "Webhook connector that triggers Emby library updates from Sonarr/Radarr",
+  "main": "src/server.js",
   "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
     "test": "jest tests/integration",
     "test:java": "TEST_BASE_URL=http://localhost:8080 jest tests/integration",
-    "test:node": "TEST_BASE_URL=http://localhost:3000 jest tests/integration"
+    "test:node": "TEST_BASE_URL=http://localhost:8080 jest tests/integration",
+    "test:integration": "TEST_BASE_URL=http://localhost:8080 npx jest tests/integration"
+  },
+  "dependencies": {
+    "fastify": "^4.26.0"
   },
   "devDependencies": {
     "jest": "^29.7.0",
+    "nodemon": "^3.0.3",
     "supertest": "^6.3.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

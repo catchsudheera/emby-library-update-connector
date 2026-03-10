@@ -24,7 +24,7 @@ npm install
 
 ## Running Tests
 
-### Against Java Spring Boot Server (default port 8080)
+### Against Java Spring Boot Server (port 8080)
 
 ```bash
 # Start the Java server first (in another terminal)
@@ -36,7 +36,7 @@ npm run test:java
 TEST_BASE_URL=http://localhost:8080 npx jest tests/integration
 ```
 
-### Against Node.js Fastify Server (default port 3000)
+### Against Node.js Fastify Server (port 8080)
 
 ```bash
 # Start the Node.js server first (in another terminal)
@@ -45,7 +45,7 @@ npm start
 # Run tests
 npm run test:node
 # OR
-TEST_BASE_URL=http://localhost:3000 npx jest tests/integration
+npx jest tests/integration
 ```
 
 ### Custom Server URL
