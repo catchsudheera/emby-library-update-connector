@@ -1,5 +1,7 @@
 #!/bin/bash
 
+rm -rf node_modules && npm install
+
 # Build multi-arch Docker image for Node.js application
 docker buildx build \
   --push \
