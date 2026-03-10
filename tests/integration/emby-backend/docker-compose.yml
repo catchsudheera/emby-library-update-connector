@@ -1,0 +1,15 @@
+services:
+  emby:
+    image: emby/embyserver:latest
+    container_name: emby
+    environment:
+      - UID=501 
+      - GID=20 
+      - GIDLIST=0
+    volumes:
+      - ./config:/config
+      - ./movies:/data/movies
+      - ./tv:/data/tvshows
+    ports:
+      - 8096:8096
+    restart: unless-stopped
