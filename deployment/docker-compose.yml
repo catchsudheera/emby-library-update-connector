@@ -1,7 +1,7 @@
 version: "3"
 services:
   emby-connector:
-    image: catchsudheera/emby-library-update-connector:1.0.4
+    image: catchsudheera/emby-library-update-connector:2.0.0
     container_name: emby-connector
     environment:
       - EMBY_URL=${EMBY_URL}
@@ -12,9 +12,9 @@ services:
     ports:
       - 9400:8080
     healthcheck:
-      test: ["CMD-SHELL", "curl -s -X GET -I  http://localhost:8080/health/ping | grep 'HTTP/1.1 200' || exit 1"]
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/health/ping"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 2m
+      start_period: 30s
     restart: unless-stopped
