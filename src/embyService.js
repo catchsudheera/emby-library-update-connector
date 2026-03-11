@@ -3,6 +3,7 @@
  * Handles communication with the Emby server API.
  */
 
+const https = require('https');
 const { config } = require('./config');
 
 const ACCESS_TOKEN_HEADER = 'X-Emby-Token';
@@ -10,6 +11,22 @@ const ACCESS_TOKEN_HEADER = 'X-Emby-Token';
 // Track last full library refresh time for rate limiting
 let lastFullLibraryRefreshTime = null;
 let scheduledRefreshTimeout = null;
+
+// Create custom HTTPS agent for self-signed certificates
+const httpsAgent = config.insecureSSL
+  ? new https.Agent({ rejectUnauthorized: false })
+  : undefined;
+
+/**
+ * Wrapper around fetch that handles SSL configuration
+ */
+async function embyFetch(url, options = {}) {
+  const fetchOptions = { ...options };
+  if (httpsAgent && url.startsWith('https://')) {
+    fetchOptions.agent = httpsAgent;
+  }
+  return fetch(url, fetchOptions);
+}
 
 /**
  * Check if a value is empty (mirrors Spring's ObjectUtils.isEmpty behavior)
@@ -34,7 +51,7 @@ function handleErrorResponse(response) {
  * Get directory set item IDs from Emby
  */
 async function getDirectorySetItemIds(directorySet) {
-  const response = await fetch(`${config.embyUrl}/Items?IsFolder=1`, {
+  const response = await embyFetch(`${config.embyUrl}/Items?IsFolder=1`, {
     headers: { [ACCESS_TOKEN_HEADER]: config.embyAccessToken },
   });
   handleErrorResponse(response);
@@ -54,7 +71,7 @@ async function getDirectorySetItemIds(directorySet) {
  */
 async function getItemIdsWithImdbIdsInParentDir(parentId, imdbId) {
   const url = `${config.embyUrl}/Items?Recursive=1&ParentId=${parentId}&Fields=ProviderIds&IsFolder=1&HasImdbId=1`;
-  const response = await fetch(url, {
+  const response = await embyFetch(url, {
     headers: { [ACCESS_TOKEN_HEADER]: config.embyAccessToken },
   });
   handleErrorResponse(response);
@@ -74,7 +91,7 @@ async function getItemIdsWithImdbIdsInParentDir(parentId, imdbId) {
  * Get item IDs by IMDB ID within directory set
  */
 async function getItemIdsByImdbId(imdbId, directorySet) {
-  const response = await fetch(`${config.embyUrl}/Items?IsFolder=1`, {
+  const response = await embyFetch(`${config.embyUrl}/Items?IsFolder=1`, {
     headers: { [ACCESS_TOKEN_HEADER]: config.embyAccessToken },
   });
   handleErrorResponse(response);
@@ -96,7 +113,7 @@ async function getItemIdsByImdbId(imdbId, directorySet) {
  */
 async function refreshItem(id) {
   console.log(`Refresh request : Item ${id}`);
-  const response = await fetch(
+  const response = await embyFetch(
     `${config.embyUrl}/emby/Items/${id}/Refresh?Recursive=true`,
     {
       method: 'POST',
@@ -137,7 +154,7 @@ async function refreshLibrary() {
     return;
   }
 
-  const response = await fetch(`${config.embyUrl}/Library/Refresh`, {
+  const response = await embyFetch(`${config.embyUrl}/Library/Refresh`, {
     method: 'POST',
     headers: { [ACCESS_TOKEN_HEADER]: config.embyAccessToken },
   });

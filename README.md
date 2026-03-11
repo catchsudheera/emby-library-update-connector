@@ -68,6 +68,7 @@ npm start
 | `SONARR_TRIGGER_EVENT_TYPES` | No | `Download,Rename,SeriesDelete,EpisodeFileDelete` | Sonarr events that trigger refresh |
 | `RADARR_TRIGGER_EVENT_TYPES` | No | `Download,Rename,MovieDelete,MovieFileDelete` | Radarr events that trigger refresh |
 | `PORT` | No | `8080` | Server port |
+| `INSECURE_SSL` | No | `false` | Set to `true` to skip SSL certificate verification (for self-signed certs) |
 
 ## Setting Up Webhooks
 

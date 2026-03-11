@@ -17,6 +17,9 @@ const config = {
 
   // Server config
   port: parseInt(process.env.PORT, 10) || 8080,
+
+  // SSL config - set to 'true' to skip SSL certificate verification (for self-signed certs)
+  insecureSSL: process.env.INSECURE_SSL === 'true',
 };
 
 function validateConfig() {
@@ -36,6 +39,7 @@ function logConfig() {
   console.log(' == SONARR_TRIGGER_EVENT_TYPES  ->  ' + config.sonarrEventTypes);
   console.log(' == RADARR_MEDIA_DIRECTORIES  ->  ' + config.radarrMediaDirectories);
   console.log(' == RADARR_TRIGGER_EVENT_TYPES  ->  ' + config.radarrEventTypes);
+  console.log(' == INSECURE_SSL  ->  ' + config.insecureSSL);
 }
 
 module.exports = {
