@@ -6,4 +6,4 @@ rm -rf node_modules && npm install
 docker buildx build \
   --push \
   --platform linux/arm/v7,linux/arm64/v8,linux/amd64 \
-  --tag catchsudheera/emby-library-update-connector:2.0.1 .
+  --tag catchsudheera/emby-library-update-connector:2.0.2 .
