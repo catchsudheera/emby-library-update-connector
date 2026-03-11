@@ -18,9 +18,12 @@ const httpsAgent = config.insecureSSL
   : undefined;
 
 /**
- * Wrapper around fetch that handles SSL configuration
+ * Wrapper around fetch that handles SSL configuration and logging
  */
 async function embyFetch(url, options = {}) {
+  const method = options.method || 'GET';
+  console.log(`Emby API request: ${method} ${url}`);
+
   const fetchOptions = { ...options };
   if (httpsAgent && url.startsWith('https://')) {
     fetchOptions.agent = httpsAgent;
@@ -40,10 +43,18 @@ function isEmpty(value) {
  * Handle error responses from Emby API
  * Throws if status doesn't start with 2
  */
-function handleErrorResponse(response) {
+async function handleErrorResponse(response, url) {
   if (!String(response.status).startsWith('2')) {
-    console.error('Error response:', response.status, response.statusText);
-    throw new Error('Error response from emby');
+    let errorBody = '';
+    try {
+      errorBody = await response.text();
+    } catch (e) {
+      errorBody = '(unable to read response body)';
+    }
+    console.error(`Emby API error: ${response.status} ${response.statusText}`);
+    console.error(`  URL: ${url}`);
+    console.error(`  Response: ${errorBody}`);
+    throw new Error(`Error response from emby: ${response.status} ${response.statusText}`);
   }
 }
 
@@ -51,10 +62,11 @@ function handleErrorResponse(response) {
  * Get directory set item IDs from Emby
  */
 async function getDirectorySetItemIds(directorySet) {
-  const response = await embyFetch(`${config.embyUrl}/Items?IsFolder=1`, {
+  const url = `${config.embyUrl}/Items?IsFolder=1`;
+  const response = await embyFetch(url, {
     headers: { [ACCESS_TOKEN_HEADER]: config.embyAccessToken },
   });
-  handleErrorResponse(response);
+  await handleErrorResponse(response, url);
 
   const data = await response.json();
   const itemList = data.Items || [];
@@ -74,7 +86,7 @@ async function getItemIdsWithImdbIdsInParentDir(parentId, imdbId) {
   const response = await embyFetch(url, {
     headers: { [ACCESS_TOKEN_HEADER]: config.embyAccessToken },
   });
-  handleErrorResponse(response);
+  await handleErrorResponse(response, url);
 
   const data = await response.json();
   const itemList = data.Items || [];
@@ -91,10 +103,11 @@ async function getItemIdsWithImdbIdsInParentDir(parentId, imdbId) {
  * Get item IDs by IMDB ID within directory set
  */
 async function getItemIdsByImdbId(imdbId, directorySet) {
-  const response = await embyFetch(`${config.embyUrl}/Items?IsFolder=1`, {
+  const url = `${config.embyUrl}/Items?IsFolder=1`;
+  const response = await embyFetch(url, {
     headers: { [ACCESS_TOKEN_HEADER]: config.embyAccessToken },
   });
-  handleErrorResponse(response);
+  await handleErrorResponse(response, url);
 
   const data = await response.json();
   const itemList = data.Items || [];
@@ -113,17 +126,15 @@ async function getItemIdsByImdbId(imdbId, directorySet) {
  */
 async function refreshItem(id) {
   console.log(`Refresh request : Item ${id}`);
-  const response = await embyFetch(
-    `${config.embyUrl}/emby/Items/${id}/Refresh?Recursive=true`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        [ACCESS_TOKEN_HEADER]: config.embyAccessToken,
-      },
-    }
-  );
-  handleErrorResponse(response);
+  const url = `${config.embyUrl}/emby/Items/${id}/Refresh?Recursive=true`;
+  const response = await embyFetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      [ACCESS_TOKEN_HEADER]: config.embyAccessToken,
+    },
+  });
+  await handleErrorResponse(response, url);
   console.log(`Refresh request sent : Item ${id}`);
 }
 
@@ -154,11 +165,12 @@ async function refreshLibrary() {
     return;
   }
 
-  const response = await embyFetch(`${config.embyUrl}/Library/Refresh`, {
+  const url = `${config.embyUrl}/Library/Refresh`;
+  const response = await embyFetch(url, {
     method: 'POST',
     headers: { [ACCESS_TOKEN_HEADER]: config.embyAccessToken },
   });
-  handleErrorResponse(response);
+  await handleErrorResponse(response, url);
 
   lastFullLibraryRefreshTime = now;
   console.log('Refresh request sent : Library');
