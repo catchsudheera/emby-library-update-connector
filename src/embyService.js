@@ -62,7 +62,7 @@ async function handleErrorResponse(response, url) {
  * Get directory set item IDs from Emby
  */
 async function getDirectorySetItemIds(directorySet) {
-  const url = `${config.embyUrl}/Items?IsFolder=1`;
+  const url = `${config.embyUrl}/Items?IsFolder=true`;
   const response = await embyFetch(url, {
     headers: { [ACCESS_TOKEN_HEADER]: config.embyAccessToken },
   });
@@ -82,7 +82,7 @@ async function getDirectorySetItemIds(directorySet) {
  * Get item IDs with matching IMDB ID within parent directory
  */
 async function getItemIdsWithImdbIdsInParentDir(parentId, imdbId) {
-  const url = `${config.embyUrl}/Items?Recursive=1&ParentId=${parentId}&Fields=ProviderIds&IsFolder=1&HasImdbId=1`;
+  const url = `${config.embyUrl}/Items?Recursive=true&ParentId=${parentId}&Fields=ProviderIds&IsFolder=true&HasImdbId=true`;
   const response = await embyFetch(url, {
     headers: { [ACCESS_TOKEN_HEADER]: config.embyAccessToken },
   });
@@ -103,7 +103,7 @@ async function getItemIdsWithImdbIdsInParentDir(parentId, imdbId) {
  * Get item IDs by IMDB ID within directory set
  */
 async function getItemIdsByImdbId(imdbId, directorySet) {
-  const url = `${config.embyUrl}/Items?IsFolder=1`;
+  const url = `${config.embyUrl}/Items?IsFolder=true`;
   const response = await embyFetch(url, {
     headers: { [ACCESS_TOKEN_HEADER]: config.embyAccessToken },
   });
